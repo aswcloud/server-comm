@@ -9,8 +9,10 @@ import (
 
 	pb "github.com/aswcloud/idl/gen/go/v1"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -70,10 +72,12 @@ func main() {
 		grpc_middleware.WithUnaryServerChain(
 			grpc_recovery.UnaryServerInterceptor(),
 			grpc_prometheus.UnaryServerInterceptor,
+			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.New())),
 		),
 		grpc_middleware.WithStreamServerChain(
 			grpc_recovery.StreamServerInterceptor(),
 			grpc_prometheus.StreamServerInterceptor,
+			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.New())),
 		),
 	)
 
