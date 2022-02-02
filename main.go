@@ -50,15 +50,22 @@ func send() {
 
 func (s *server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserResponse, error) {
 	log.Printf("Received profile: %v", in.GetUserId())
-
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Errorf(codes.DataLoss, "failed to get metadata")
-	}
-	data := md["authen"][0]
-	fmt.Println(data)
-
 	return &pb.GetUserResponse{UserMessage: &pb.UserMessage{UserId: in.GetUserId(), Name: "chacha", PhoneNumber: "1111-1111", Age: 30}}, nil
+}
+
+// UnaryServerInterceptor returns a new unary server interceptor for panic recovery.
+func UnaryServerInterceptor() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (_ interface{}, err error) {
+		resp, err := handler(ctx, req)
+		md, ok := metadata.FromIncomingContext(ctx)
+		if !ok {
+			return nil, status.Errorf(codes.DataLoss, "failed to get metadata")
+		}
+		data := md["authen"]
+		fmt.Println(data)
+
+		return resp, err
+	}
 }
 
 func main() {
@@ -73,11 +80,7 @@ func main() {
 			grpc_recovery.UnaryServerInterceptor(),
 			grpc_prometheus.UnaryServerInterceptor,
 			grpc_logrus.UnaryServerInterceptor(logrus.NewEntry(logrus.New())),
-		),
-		grpc_middleware.WithStreamServerChain(
-			grpc_recovery.StreamServerInterceptor(),
-			grpc_prometheus.StreamServerInterceptor,
-			grpc_logrus.StreamServerInterceptor(logrus.NewEntry(logrus.New())),
+			UnaryServerInterceptor(),
 		),
 	)
 
