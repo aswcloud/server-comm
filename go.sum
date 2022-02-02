@@ -41,6 +41,8 @@ github.com/alecthomas/units v0.0.0-20190924025748-f65c72e2690d/go.mod h1:rBZYJk5
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/aswcloud/idl v0.0.10 h1:IKWPz96+pBNEoZrVMzSbhxxosGgTcjLYxokK4tgCZlo=
 github.com/aswcloud/idl v0.0.10/go.mod h1:FFpFHTrL5IKwbKfjk+DsGf8qRYx/7W4XQZBFPMDP+Ow=
+github.com/aswcloud/idl v0.0.11 h1:kQPMfS2rZjoaoxg01shspw3HEdjvTaR228ZrPYDxR9U=
+github.com/aswcloud/idl v0.0.11/go.mod h1:FFpFHTrL5IKwbKfjk+DsGf8qRYx/7W4XQZBFPMDP+Ow=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
 github.com/beorn7/perks v1.0.1 h1:VlbKKnNfV8bJzeqoa4cOKqO6bYr3WgKZxO8Z16+hsOM=

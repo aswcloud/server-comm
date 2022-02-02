@@ -3,7 +3,7 @@ module github.com/aswcloud/server-comm
 go 1.17
 
 require (
-	github.com/aswcloud/idl v0.0.10
+	github.com/aswcloud/idl v0.0.11
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	google.golang.org/grpc v1.44.0
