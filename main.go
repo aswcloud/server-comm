@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net"
 	"time"
@@ -11,6 +12,9 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
+	"google.golang.org/grpc/status"
 )
 
 type server struct {
@@ -29,7 +33,10 @@ func send() {
 	c := pb.NewUserClient(conn)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
-
+	header := metadata.New(map[string]string{"authen": "barer aaaa"})
+	// metadata.NewOutgoingContext(context.Background(), header)
+	grpc.SendHeader(ctx, header)
+	ctx = metadata.NewOutgoingContext(ctx, header)
 	reply, err := c.GetUser(ctx, &pb.GetUserRequest{UserId: "testHello"})
 
 	// GetHello 호출
@@ -41,6 +48,14 @@ func send() {
 
 func (s *server) GetUser(ctx context.Context, in *pb.GetUserRequest) (*pb.GetUserResponse, error) {
 	log.Printf("Received profile: %v", in.GetUserId())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return nil, status.Errorf(codes.DataLoss, "failed to get metadata")
+	}
+	data := md["authen"][0]
+	fmt.Println(data)
+
 	return &pb.GetUserResponse{UserMessage: &pb.UserMessage{UserId: in.GetUserId(), Name: "chacha", PhoneNumber: "1111-1111", Age: 30}}, nil
 }
 
