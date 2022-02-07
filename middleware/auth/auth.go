@@ -8,7 +8,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// UnaryServerInterceptor returns a new unary server interceptor for panic recovery.
 func Authorization(ctx context.Context) (context.Context, error) {
 	token, error := grpc_auth.AuthFromMD(ctx, "bearer")
 	if error != nil {
