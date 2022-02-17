@@ -1,7 +1,7 @@
 package organization
 
 import (
-	pb "github.com/aswcloud/idl/gen/go/v1"
+	pb "github.com/aswcloud/idl"
 )
 
 type OrganizationServer struct {

@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/aswcloud/idl/gen/go/v1"
+	pb "github.com/aswcloud/idl"
 	"github.com/aswcloud/server-comm/grpc/organization"
 	"github.com/aswcloud/server-comm/grpc/token"
 	"github.com/aswcloud/server-comm/grpc/user"

@@ -1,7 +1,7 @@
 package token
 
 import (
-	pb "github.com/aswcloud/idl/gen/go/v1"
+	pb "github.com/aswcloud/idl"
 )
 
 type TokenServer struct {
