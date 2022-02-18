@@ -14,10 +14,15 @@ import (
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/sirupsen/logrus"
 
+	"github.com/aswcloud/server-comm/database"
 	"google.golang.org/grpc"
 )
 
 func main() {
+	database.GetMongoClient()
+
+	return
+
 	lis, err := net.Listen("tcp", "localhost:8088")
 	log.Print("TEST??")
 	if err != nil {
