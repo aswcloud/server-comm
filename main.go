@@ -6,20 +6,33 @@ import (
 	"net"
 
 	pb "github.com/aswcloud/idl"
+	"github.com/aswcloud/server-comm/database"
 	"github.com/aswcloud/server-comm/grpc/organization"
 	"github.com/aswcloud/server-comm/grpc/token"
 	"github.com/aswcloud/server-comm/grpc/user"
+
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	"github.com/sirupsen/logrus"
+	"github.com/subosito/gotenv"
 
-	"github.com/aswcloud/server-comm/database"
 	"google.golang.org/grpc"
 )
 
 func main() {
-	database.GetMongoClient()
+	gotenv.Load()
+
+	db := database.New()
+	if db.Connect() {
+		fmt.Println("connect success")
+	} else {
+		fmt.Println("connect fail")
+	}
+
+	if db.Disconnect() {
+		fmt.Println("disconnect success")
+	}
 
 	return
 
