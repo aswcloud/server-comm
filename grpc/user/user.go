@@ -27,11 +27,18 @@ func (self *UserServer) CreateUser(ctx context.Context, data *pb.MakeUser) (*pb.
 		data.User.UserNickname,
 		email,
 	)
-	result := pb.Result{}
-	result.Result = true
-	result.Any = append(result.Any, uuid)
-
-	return &result, nil
+	if uuid == "" {
+		errorText := "exists userid : " + data.User.UserId
+		return &pb.Result{
+			Result: false,
+			Error:  &errorText,
+		}, nil
+	} else {
+		result := pb.Result{}
+		result.Result = true
+		result.Any = append(result.Any, uuid)
+		return &result, nil
+	}
 }
 
 func (self *UserServer) ReadUser(ctx context.Context, data *pb.Uuid) (*pb.UserDetail, error) {

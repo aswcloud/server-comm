@@ -55,6 +55,10 @@ func (self UserCollection) GetUserUuid(userId string) (string, error) {
 }
 
 func (self UserCollection) NewUser(userId, password, nickname, email string) string {
+	if self.ExistsId(userId) {
+		return ""
+	}
+
 	hash := sha512.Sum512([]byte(password))
 	text := hex.EncodeToString(hash[:])
 	b_uuid, _ := uuid.New()
