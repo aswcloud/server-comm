@@ -70,7 +70,7 @@ jobs:
           valueFile: 'servercomm/deployment-aswcloud.yaml'
           propertyPath: 'spec.template.spec.containers[0].image'
           value: aoikazto/aswcloud-server:${{steps.tag.outputs.tag}}
-          commitChange: true
+          commitChange: false
           updateFile: true
           workDir: argo-git
       
