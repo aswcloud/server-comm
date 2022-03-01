@@ -14,8 +14,8 @@ spec:
       labels:
         app: aswcloud-comm
       containers:
-      - name: aswcloud-comm
-        image: aoikazto/aswcloud-server
+      - name: server
+        image: aoikazto/aswcloud-server:latest
         ports:
         - containerPort: 8088
         env:
