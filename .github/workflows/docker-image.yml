@@ -57,13 +57,14 @@ jobs:
         with:
           repository: aswcloud/argo-cd
           # 다른 저장소에 push 하려면 Personal Access Token이 필요.
+          ref: main
           token: ${{ secrets.ACTION_TOKEN }}
           path: argo-git
           
       - name: Update Image Version in the related HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
-          valueFile: 'servercomm/deployment-aswcloud.yaml'
+          valueFile: 'argo-git/servercomm/deployment-aswcloud.yaml'
           propertyPath: 'sepc.template.sepc.containers[0].image'
           value: ${{steps.tag.outputs.tag}}
           commitChange: false
