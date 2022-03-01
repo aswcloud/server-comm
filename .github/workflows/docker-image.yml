@@ -67,7 +67,7 @@ jobs:
         with:
           repository: aswcloud/argo-cd
           token: ${{ secrets.ACTION_TOKEN }}
-          valueFile: 'argo-git/servercomm/deployment-aswcloud.yaml'
+          valueFile: 'servercomm/deployment-aswcloud.yaml'
           propertyPath: 'spec.template.spec.containers[0].image'
           value: aoikazto/aswcloud-server:${{steps.tag.outputs.tag}}
           commitChange: false
