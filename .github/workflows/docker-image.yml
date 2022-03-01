@@ -60,7 +60,7 @@ jobs:
           # 다른 저장소에 push 하려면 Personal Access Token이 필요.
           ref: main
           token: ${{ secrets.ACTION_TOKEN }}
-          
+
       - name: Update Image Version in the related HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@main
         with:
@@ -85,5 +85,6 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.ACTION_TOKEN }}
-          branch: "main"
+          repository: aswcloud/argo-cd
+          branch: main
 
