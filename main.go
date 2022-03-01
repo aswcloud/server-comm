@@ -6,6 +6,7 @@ import (
 	"net"
 
 	pb "github.com/aswcloud/idl"
+	"github.com/aswcloud/server-comm/database"
 	"github.com/aswcloud/server-comm/grpc/organization"
 	"github.com/aswcloud/server-comm/grpc/token"
 	"github.com/aswcloud/server-comm/grpc/user"
@@ -24,6 +25,10 @@ func main() {
 
 	lis, err := net.Listen("tcp", ":8088")
 	log.Print("TEST??")
+	if !database.New().Connect() {
+		log.Fatal("DB ERROR!")
+	}
+
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
