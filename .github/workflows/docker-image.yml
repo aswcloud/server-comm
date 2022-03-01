@@ -73,3 +73,8 @@ jobs:
           commitChange: false
           updateFile: true
           workDir: argo-git
+      
+      - name: result
+        run: |
+          pwd
+          cat argo-git/servercomm/deployment-aswcloud.yaml
