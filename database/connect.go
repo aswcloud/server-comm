@@ -12,11 +12,11 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
-func (self *Client) Ping() bool {
+func Ping(client *mongo.Client) bool {
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
 
-	err := self.client.Ping(ctx, readpref.Primary()) // Primary DB에 대한 연결 체크
+	err := client.Ping(ctx, readpref.Primary()) // Primary DB에 대한 연결 체크
 
 	if err != nil {
 		return false
@@ -47,7 +47,7 @@ func (self *Client) Connect() bool {
 		return false
 	}
 
-	if self.Ping() {
+	if Ping(client) {
 		fmt.Println("Database Connect Success")
 	} else {
 		fmt.Println("Database Connect Fail")
