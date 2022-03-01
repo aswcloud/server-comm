@@ -6,44 +6,42 @@ on:
       - 'v*'
 
 jobs:
-  docker-deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-        name: Checkout
+  # docker-deploy:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v2
+  #       name: Checkout
         
-      - uses: crazy-max/ghaction-docker-meta@v1
-        name: Docker meta
-        id: docker_meta
-        with:
-          images: aoikazto/aswcloud-server
-          tag-semver: |
-            {{version}}
-            {{major}}.{{minor}}
-      - uses: docker/setup-buildx-action@v1
-        name: Set up Docker Buildx
+  #     - uses: crazy-max/ghaction-docker-meta@v1
+  #       name: Docker meta
+  #       id: docker_meta
+  #       with:
+  #         images: aoikazto/aswcloud-server
+  #         tag-semver: |
+  #           {{version}}
+  #           {{major}}.{{minor}}
+  #     - uses: docker/setup-buildx-action@v1
+  #       name: Set up Docker Buildx
         
-      - uses: docker/login-action@v1
-        name: Login to DockerHub
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_TOKEN }}
-      - uses: docker/build-push-action@v2
-        name: Build and push
-        with:
-          context: .
-          file: ./Dockerfile
-          platforms: linux/amd64
-          push: true
-          tags: ${{ steps.docker_meta.outputs.tags }}
-          labels: ${{ steps.docker_meta.outputs.labels }}
+  #     - uses: docker/login-action@v1
+  #       name: Login to DockerHub
+  #       with:
+  #         username: ${{ secrets.DOCKER_USERNAME }}
+  #         password: ${{ secrets.DOCKER_TOKEN }}
+  #     - uses: docker/build-push-action@v2
+  #       name: Build and push
+  #       with:
+  #         context: .
+  #         file: ./Dockerfile
+  #         platforms: linux/amd64
+  #         push: true
+  #         tags: ${{ steps.docker_meta.outputs.tags }}
+  #         labels: ${{ steps.docker_meta.outputs.labels }}
 
   deploy:
-    needs: docker-deploy
+    # needs: docker-deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Kustomize
-        uses: imranismail/setup-kustomize@v1
       - name: Get tag
         id: tag
         uses: dawidd6/action-get-tag@v1
@@ -62,22 +60,11 @@ jobs:
           token: ${{ secrets.ACTION_TOKEN }}
           path: argo-git
           
-      - name: Update Kubernetes resources
-        run: |
-          cd example-app-kustomize/overlays/dev/
-          kustomize edit set image aswcloud-server:${{ steps.image.outputs.version }}
-          cat kustomization.yaml
-
-      - name: Commit files
-        uses: EndBug/add-and-commit@v4.4.0
-        with: 
-          add: 'servercomm'
-          ref: 'main'
-        env: 
-          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
-      
-      - name: Push commit
-        uses: ad-m/github-push-action@master
+      - name: Update Image Version in the related HelmChart values.yaml
+        uses: fjogeleit/yaml-update-action@main
         with:
-          github_token: ${{ secrets.ACTION_TOKEN }}
-          branch: "main"
+          valueFile: 'servercomm/deployment-aswcloud.yaml'
+          propertyPath: 'sepc.template.sepc.containers[0].image'
+          value: ${{steps.tag.outputs.tag}}
+          commitChange: false
+          updateFile: true
