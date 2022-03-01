@@ -1,18 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: aswcloud-comm-deployment
+  name: aswcloud-comm-database-deployment
   labels:
-    app: aswcloud-comm
+    app: aswcloud-comm-database
 spec:
   replicas: 1 
   selector:
     matchLabels:
-      app: aswcloud-comm
+      app: aswcloud-comm-database
   template:
     metadata:
       labels:
-        app: aswcloud-comm
+        app: aswcloud-comm-database
     spec:
       volumes:
       - name: pvs-aswcloud-comm-database
@@ -21,7 +21,7 @@ spec:
 
       containers:
       - name: database
-        image: mongodb
+        image: mongo
         volumeMounts:
         - mountPath: "/data/db"
           name: pvs-aswcloud-comm-database
@@ -34,8 +34,3 @@ spec:
           value: "example"
         ports:
         - containerPort: 27017
-        
-      - name: aswcloud-comm
-        image: aoikazto/aswcloud-server
-        ports:
-        - containerPort: 8088

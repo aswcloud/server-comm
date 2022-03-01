@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: aswcloud-comm-deployment
+  labels:
+    app: aswcloud-comm
+spec:
+  replicas: 1 
+  selector:
+    matchLabels:
+      app: aswcloud-comm
+  template:
+    metadata:
+      labels:
+        app: aswcloud-comm
+      containers:
+      - name: aswcloud-comm
+        image: aoikazto/aswcloud-server
+        ports:
+        - containerPort: 8088
+        env:
+        - name: MONGODB_SERVER
+          value: "aswcloud-comm-database-service.aswcloud.svc.cluster.local"
+        - name: MONGODB_PORT
+          value: "root"
+        - name: MONGODB_DATABASE
+          value: "example"
+        - name: JWT_SECRET_TOKEN
+          value: "test"
