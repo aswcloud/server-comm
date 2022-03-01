@@ -39,7 +39,7 @@ jobs:
           labels: ${{ steps.docker_meta.outputs.labels }}
 
   deploy:
-    needs: build
+    needs: docker-deploy
     runs-on: ubuntu-latest
     steps:
       - name: Setup Kustomize
