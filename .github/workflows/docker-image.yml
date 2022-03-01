@@ -3,10 +3,10 @@ name: Docker Image CI
 on:
   push:
     tags:
-      - '**'
+      - 'v*'
 
 jobs:
-  build:
+  docker-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -37,3 +37,47 @@ jobs:
           push: true
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v1
+      - name: Get tag
+        id: tag
+        uses: dawidd6/action-get-tag@v1
+        with:
+          # Optionally strip `v` prefix
+          strip_v: true
+
+      - name: Use tag
+        run: echo ${{steps.tag.outputs.tag}}
+
+      - uses: actions/checkout@v2
+        name: Checkout
+        with:
+          repository: aswcloud/argo-cd
+          # 다른 저장소에 push 하려면 Personal Access Token이 필요.
+          token: ${{ secrets.ACTION_TOKEN }}
+          path: argo-git
+          
+      - name: Update Kubernetes resources
+        run: |
+          cd example-app-kustomize/overlays/dev/
+          kustomize edit set image aswcloud-server:${{ steps.image.outputs.version }}
+          cat kustomization.yaml
+
+      - name: Commit files
+        uses: EndBug/add-and-commit@v4.4.0
+        with: 
+          add: 'servercomm'
+          ref: 'main'
+        env: 
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
+      
+      - name: Push commit
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.ACTION_TOKEN }}
+          branch: "main"
