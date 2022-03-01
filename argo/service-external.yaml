@@ -9,5 +9,5 @@ spec:
   ports:
     - port: 8088
       targetPort: 8088
-      nodePort: 300500
+      nodePort: 30500
       name: "grpc"
