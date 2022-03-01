@@ -28,3 +28,7 @@ spec:
           value: "servercomm"
         - name: JWT_SECRET_TOKEN
           value: "test"
+        - name: MONGODB_ID
+          value: "root"
+        - name: MONGODB_PW
+          value: "example"
