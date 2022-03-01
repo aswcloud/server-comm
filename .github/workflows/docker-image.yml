@@ -60,7 +60,6 @@ jobs:
           # 다른 저장소에 push 하려면 Personal Access Token이 필요.
           ref: main
           token: ${{ secrets.ACTION_TOKEN }}
-          path: argo-git
           
       - name: Update Image Version in the related HelmChart values.yaml
         uses: fjogeleit/yaml-update-action@main
@@ -72,12 +71,8 @@ jobs:
           value: aoikazto/aswcloud-server:${{steps.tag.outputs.tag}}
           commitChange: false
           updateFile: true
-          workDir: argo-git
+          workDir: .
       
-      - name: Cd
-        run: |
-          cd argo-git
-
       - name: Add & Commit
         uses: EndBug/add-and-commit@v4.4.0
         with:
@@ -92,8 +87,3 @@ jobs:
           github_token: ${{ secrets.ACTION_TOKEN }}
           branch: "main"
 
-      - name: result
-        run: |
-          pwd
-          cat argo-git/servercomm/deployment-aswcloud.yaml
-          cat servercomm/deployment-aswcloud.yaml
