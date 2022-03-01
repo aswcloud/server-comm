@@ -74,7 +74,26 @@ jobs:
           updateFile: true
           workDir: argo-git
       
+      - name: Cd
+        run: |
+          cd argo-git
+
+      - name: Add & Commit
+        uses: EndBug/add-and-commit@v4.4.0
+        with:
+          add: '.'
+          ref: "main"
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTION_TOKEN }}
+          
+      - name: Push commit
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.ACTION_TOKEN }}
+          branch: "main"
+
       - name: result
         run: |
           pwd
           cat argo-git/servercomm/deployment-aswcloud.yaml
+          cat servercomm/deployment-aswcloud.yaml
