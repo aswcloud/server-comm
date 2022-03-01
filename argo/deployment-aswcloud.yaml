@@ -23,8 +23,8 @@ spec:
         - name: MONGODB_SERVER
           value: "aswcloud-comm-database-service.aswcloud.svc.cluster.local"
         - name: MONGODB_PORT
-          value: "root"
+          value: "27017"
         - name: MONGODB_DATABASE
-          value: "example"
+          value: "servercomm"
         - name: JWT_SECRET_TOKEN
           value: "test"

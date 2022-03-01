@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
@@ -27,7 +28,19 @@ func (self *Client) Connect() bool {
 	host := os.Getenv("MONGODB_SERVER")
 	port := os.Getenv("MONGODB_PORT")
 	database := os.Getenv("MONGODB_DATABASE")
-	clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port)
+	username := os.Getenv("MONGODB_ID")
+	password := os.Getenv("MONGODB_PW")
+	log.Println("host : " + host)
+	log.Println("port : " + port)
+	log.Println("database : " + database)
+	log.Println("username : " + username)
+	log.Println("password : " + password)
+
+	clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port).
+		SetAuth(options.Credential{
+			Username: username,
+			Password: password,
+		})
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
