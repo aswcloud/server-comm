@@ -2,11 +2,26 @@ package database
 
 import (
 	"context"
+	"fmt"
 	"os"
+	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
+
+func (self *Client) Ping() bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	err := self.client.Ping(ctx, readpref.Primary()) // Primary DB에 대한 연결 체크
+
+	if err != nil {
+		return false
+	}
+	return true
+}
 
 func (self *Client) Connect() bool {
 	host := os.Getenv("MONGODB_SERVER")
@@ -18,6 +33,13 @@ func (self *Client) Connect() bool {
 	if err != nil {
 		return false
 	}
+
+	if self.Ping() {
+		fmt.Println("Database Connect Success")
+	} else {
+		fmt.Println("Database Connect Fail")
+	}
+
 	self.client = client
 	self.database = client.Database(database)
 
