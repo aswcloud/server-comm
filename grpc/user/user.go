@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 
 	pb "github.com/aswcloud/idl"
 	"github.com/aswcloud/server-comm/database"
@@ -46,6 +47,7 @@ func (self *UserServer) ReadUser(ctx context.Context, data *pb.Uuid) (*pb.UserDe
 }
 
 func (self *UserServer) UpdateUser(ctx context.Context, data *pb.User) (*pb.Result, error) {
+	fmt.Println("HI!!!!")
 	return &pb.Result{}, nil
 }
 
