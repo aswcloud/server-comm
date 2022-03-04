@@ -1,5 +1,3 @@
-
-```yaml
 name: Docker Image CI
 
 on:
@@ -105,4 +103,3 @@ jobs:
           github_token: ${{ secrets.BOT_TOKEN }}
           repository: aswcloud/argo-cd
           branch: main
-```
