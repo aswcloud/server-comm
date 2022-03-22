@@ -1,4 +1,6 @@
-FROM golang:alpine AS builder
+FROM golang:1.18-alpine AS builder
+RUN apk add git
+
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
     GOOS=linux \
