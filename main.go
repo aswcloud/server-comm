@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/hex"
 	"log"
 	"net"
 
@@ -25,9 +25,19 @@ func main() {
 
 	lis, err := net.Listen("tcp", ":8088")
 	log.Print("TEST??")
-	if !database.New().Connect() {
-		log.Fatal("DB ERROR!")
+	db := database.New()
+	if !db.Connect() {
+		log.Fatal("Database Connection Fail")
+		return
 	}
+	count := db.RegisterTokenCollection().TokenCount()
+	if count == 0 {
+		token := db.RegisterTokenCollection().CreateToken(24 * 60 * 60)
+		log.Println("create token message : ", hex.EncodeToString(token[:]))
+	} else {
+		log.Println("exists token : ", count)
+	}
+	db.Disconnect()
 
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -49,5 +59,4 @@ func main() {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
-	fmt.Println("ERROR!333")
 }
