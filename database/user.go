@@ -15,7 +15,7 @@ type UserCollection struct {
 	collection *mongo.Collection
 }
 
-func (self *Client) GetUserCollection() *UserCollection {
+func (self *Client) UserCollection() *UserCollection {
 	user := UserCollection{}
 	if self.database == nil {
 		return nil

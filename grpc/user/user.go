@@ -22,7 +22,7 @@ func (self *UserServer) CreateUser(ctx context.Context, data *pb.MakeUser) (*pb.
 		email = *data.User.UserEmail
 	}
 
-	uuid := db.GetUserCollection().NewUser(
+	uuid := db.UserCollection().NewUser(
 		data.User.UserId,
 		data.User.UserPassword,
 		data.User.UserNickname,

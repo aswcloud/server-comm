@@ -38,11 +38,12 @@ func (self *TokenServer) CreateRefreshToken(ctx context.Context, data *pb.UserLo
 	db := database.New()
 	db.Connect()
 	defer db.Disconnect()
+
 	result := pb.RefreshToken{}
 
-	login := db.GetUserCollection().Login(data.UserId, data.UserPassword)
+	login := db.UserCollection().Login(data.UserId, data.UserPassword)
 	result.Result = login
-	uuid, err := db.GetUserCollection().GetUserUuid(data.UserId)
+	uuid, err := db.UserCollection().GetUserUuid(data.UserId)
 	if err == nil {
 		result.Uuid = &pb.Uuid{Uuid: uuid}
 	} else {
