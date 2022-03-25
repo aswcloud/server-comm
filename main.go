@@ -5,7 +5,7 @@ import (
 	"log"
 	"net"
 
-	pb "github.com/aswcloud/idl"
+	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
 	"github.com/aswcloud/server-comm/grpc/organization"
 	"github.com/aswcloud/server-comm/grpc/token"

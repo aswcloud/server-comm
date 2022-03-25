@@ -54,9 +54,9 @@ func (self UserCollection) GetUserUuid(userId string) (string, error) {
 	return data.(string), nil
 }
 
-func (self UserCollection) NewUser(userId, password, nickname, email string) string {
+func (self UserCollection) NewUser(userId, password, nickname, email string) (string, error) {
 	if self.ExistsId(userId) {
-		return ""
+		return "", fmt.Errorf("exists userid : " + userId)
 	}
 
 	hash := sha512.Sum512([]byte(password))
@@ -71,7 +71,7 @@ func (self UserCollection) NewUser(userId, password, nickname, email string) str
 		{"email", email},
 	})
 
-	return uuid
+	return uuid, nil
 }
 
 func (self UserCollection) DeleteUser(uuid string) bool {

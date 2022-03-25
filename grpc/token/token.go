@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	pb "github.com/aswcloud/idl"
+	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
 	"github.com/golang-jwt/jwt"
 	"google.golang.org/grpc/metadata"
@@ -34,38 +34,48 @@ func createToken(uuid string) (string, error) {
 	return token, nil
 }
 
-func (self *TokenServer) CreateRefreshToken(ctx context.Context, data *pb.UserLoginMessage) (*pb.RefreshToken, error) {
+func (self *TokenServer) CreateRefreshToken(ctx context.Context, data *pb.CreateRefreshTokenMessage) (*pb.TokenMessage, error) {
 	db := database.New()
 	db.Connect()
 	defer db.Disconnect()
 
-	result := pb.RefreshToken{}
-
 	login := db.UserCollection().Login(data.UserId, data.UserPassword)
-	result.Result = login
-	uuid, err := db.UserCollection().GetUserUuid(data.UserId)
-	if err == nil {
-		result.Uuid = &pb.Uuid{Uuid: uuid}
+	if login == false {
+		return &pb.TokenMessage{
+			Result: false,
+			Token:  nil,
+		}, nil
 	} else {
-		result.Uuid = &pb.Uuid{}
-	}
-
-	if login {
-		token, err2 := createToken(uuid)
-
-		if err2 != nil {
-			return nil, err2
+		uuid, err := db.UserCollection().GetUserUuid(data.UserId)
+		if err != nil {
+			return &pb.TokenMessage{
+				Result: false,
+				Token:  nil,
+			}, nil
 		}
-		result.Uuid = &pb.Uuid{Uuid: uuid}
-		result.Token = &token
-		return &result, nil
+
+		token, err := createToken(uuid)
+		if err != nil {
+			return &pb.TokenMessage{
+				Result: false,
+				Token:  nil,
+			}, nil
+		}
+
+		return &pb.TokenMessage{
+			Result: true,
+			Token:  &token,
+		}, nil
 	}
-	return &result, nil
+}
+
+func (self *TokenServer) ReadRefreshToken(ctx context.Context, data *pb.Void) (*pb.RefreshTokenList, error) {
+	return &pb.RefreshTokenList{}, nil
 }
 
 // dolor officia id exercitation
 
-func (self *TokenServer) UpdatehRefreshToken(ctx context.Context, data *pb.Uuid) (*pb.RefreshToken, error) {
+func (self *TokenServer) UpdatehRefreshToken(ctx context.Context, data *pb.Uuid) (*pb.TokenMessage, error) {
 	md, _ := metadata.FromIncomingContext(ctx)
 	p := md.Get("authorization")[0]
 	fmt.Println(p)
@@ -77,25 +87,23 @@ func (self *TokenServer) UpdatehRefreshToken(ctx context.Context, data *pb.Uuid)
 	requestUuid := claims["user_id"]
 
 	if err != nil || requestUuid != data.Uuid {
-		return &pb.RefreshToken{
+		return &pb.TokenMessage{
 			Result: false,
-			Uuid:   &pb.Uuid{Uuid: data.Uuid},
 			Token:  nil,
 		}, nil
 	}
 
 	token, _ := createToken(data.Uuid)
-	return &pb.RefreshToken{
+	return &pb.TokenMessage{
 		Result: true,
-		Uuid:   &pb.Uuid{Uuid: data.Uuid},
 		Token:  &token,
 	}, nil
 }
 
-func (self *TokenServer) DeleteRefreshToken(ctx context.Context, data *pb.Uuid) (*pb.LoginTokenMessage, error) {
-	return &pb.LoginTokenMessage{}, nil
+func (self *TokenServer) DeleteRefreshToken(ctx context.Context, data *pb.Uuid) (*pb.DeleteRefreshTokenMessage, error) {
+	return &pb.DeleteRefreshTokenMessage{}, nil
 }
 
-func (self *TokenServer) MakeAccessToken(ctx context.Context, data *pb.Uuid) (*pb.AccessToken, error) {
-	return &pb.AccessToken{}, nil
+func (self *TokenServer) CreateAccessToken(ctx context.Context, data *pb.Uuid) (*pb.TokenMessage, error) {
+	return &pb.TokenMessage{}, nil
 }

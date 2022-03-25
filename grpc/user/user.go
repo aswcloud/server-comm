@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 
-	pb "github.com/aswcloud/idl"
+	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
 )
 
@@ -17,29 +17,41 @@ func (self *UserServer) CreateUser(ctx context.Context, data *pb.MakeUser) (*pb.
 	db.Connect()
 	defer db.Disconnect()
 
+	// 회원가입 토큰이 정상적인지 검증함.
+	result, err := db.RegisterTokenCollection().ExistsToken([]byte(data.Token))
+	if !result {
+		err_text := err.Error()
+		return &pb.Result{
+			Result: false,
+			Error:  &err_text,
+		}, nil
+	}
+
+	// email 데이터 분리
 	email := ""
 	if data.User.UserEmail != nil {
 		email = *data.User.UserEmail
 	}
 
-	uuid := db.UserCollection().NewUser(
+	uuid, err := db.UserCollection().NewUser(
 		data.User.UserId,
 		data.User.UserPassword,
 		data.User.UserNickname,
 		email,
 	)
-	if uuid == "" {
-		errorText := "exists userid : " + data.User.UserId
+
+	if err != nil {
+		err_text := err.Error()
 		return &pb.Result{
 			Result: false,
-			Error:  &errorText,
+			Error:  &err_text,
 		}, nil
-	} else {
-		result := pb.Result{}
-		result.Result = true
-		result.Any = append(result.Any, uuid)
-		return &result, nil
 	}
+
+	return &pb.Result{
+		Result: true,
+		Any:    []string{uuid},
+	}, nil
 }
 
 func (self *UserServer) ReadUser(ctx context.Context, data *pb.Uuid) (*pb.UserDetail, error) {
