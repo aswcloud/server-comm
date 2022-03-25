@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"go.mongodb.org/mongo-driver/mongo"
@@ -36,11 +37,13 @@ func (self *Client) Connect() bool {
 	log.Println("username : " + username)
 	log.Println("password : " + password)
 
-	clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port).
-		SetAuth(options.Credential{
+	clientOptions := options.Client().ApplyURI("mongodb://" + host + ":" + port)
+	if strings.ToLower(host) != "localhost" && host != "127.0.0.1" {
+		clientOptions.SetAuth(options.Credential{
 			Username: username,
 			Password: password,
 		})
+	}
 
 	client, err := mongo.Connect(context.TODO(), clientOptions)
 	if err != nil {
@@ -51,6 +54,7 @@ func (self *Client) Connect() bool {
 		fmt.Println("Database Connect Success")
 	} else {
 		fmt.Println("Database Connect Fail")
+		return false
 	}
 
 	self.client = client
