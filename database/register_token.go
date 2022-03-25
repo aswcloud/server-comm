@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"crypto/sha512"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -31,19 +32,20 @@ func (self *RegisterTokenCollection) TokenCount() int64 {
 }
 
 // duration, Unit : Seconds
-func (self *RegisterTokenCollection) CreateToken(duration int32) [64]byte {
+func (self *RegisterTokenCollection) CreateToken(duration int32) string {
 	iat := time.Now().UTC()
 	exp := iat.Add(time.Second * time.Duration(duration))
 
 	uuid, _ := uuid.New()
 	data := append(uuid[:], []byte(iat.String())...)
 	data = append(data, []byte(exp.String())...)
+	hash := sha512.Sum512(data)
 
-	token := sha512.Sum512(data)
+	token := hex.EncodeToString(hash[:])
 
 	self.collection.InsertOne(context.TODO(), bson.D{
-		{"iat", iat},
-		{"exp", exp},
+		{"iat", iat.Unix()},
+		{"exp", exp.Unix()},
 		{"dur", duration},
 		{"token", token},
 	})
@@ -52,8 +54,8 @@ func (self *RegisterTokenCollection) CreateToken(duration int32) [64]byte {
 }
 
 // 성공 유무와, iat, exp, dur 관련 실패 데이터
-func (self *RegisterTokenCollection) ExistsToken(token []byte) (bool, error) {
-	nowTime := time.Now().UTC()
+func (self *RegisterTokenCollection) ExistsToken(token string) (bool, error) {
+	nowTime := time.Now().UTC().Unix()
 	var elem bson.M
 
 	err := self.collection.FindOne(context.TODO(), bson.D{
@@ -64,9 +66,9 @@ func (self *RegisterTokenCollection) ExistsToken(token []byte) (bool, error) {
 		return false, err
 	}
 
-	exp := elem["exp"].(time.Time)
+	exp := elem["exp"].(int64)
 	// exp.Sub(nowTime)
-	if exp.Sub(nowTime) < 0 {
+	if exp < nowTime {
 		return false, fmt.Errorf("token is expired")
 	}
 

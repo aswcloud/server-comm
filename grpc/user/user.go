@@ -18,7 +18,7 @@ func (self *UserServer) CreateUser(ctx context.Context, data *pb.MakeUser) (*pb.
 	defer db.Disconnect()
 
 	// 회원가입 토큰이 정상적인지 검증함.
-	result, err := db.RegisterTokenCollection().ExistsToken([]byte(data.Token))
+	result, err := db.RegisterTokenCollection().ExistsToken(data.Token)
 	if !result {
 		err_text := err.Error()
 		return &pb.Result{

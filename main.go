@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/hex"
 	"log"
 	"net"
 
@@ -33,7 +32,7 @@ func main() {
 	count := db.RegisterTokenCollection().TokenCount()
 	if count == 0 {
 		token := db.RegisterTokenCollection().CreateToken(24 * 60 * 60)
-		log.Println("create token message : ", hex.EncodeToString(token[:]))
+		log.Println("create token message : ", token)
 	} else {
 		log.Println("exists token : ", count)
 	}
