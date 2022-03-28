@@ -9,12 +9,12 @@ require (
 	github.com/sirupsen/logrus v1.8.1
 	github.com/subosito/gotenv v1.2.0
 	go.mongodb.org/mongo-driver v1.8.3
-	google.golang.org/grpc v1.44.0
+	google.golang.org/grpc v1.45.0
 )
 
 require (
 	github.com/go-stack/stack v1.8.0 // indirect
-	github.com/golang/protobuf v1.5.0 // indirect
+	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
