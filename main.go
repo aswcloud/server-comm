@@ -9,6 +9,7 @@ import (
 	"github.com/aswcloud/server-comm/grpc/organization"
 	"github.com/aswcloud/server-comm/grpc/user"
 
+	"github.com/aswcloud/server-comm/grpc/token"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -29,8 +30,8 @@ func main() {
 		return
 	}
 
-	token := db.RegisterTokenCollection().CreateToken(24 * 60 * 60 * 30)
-	log.Println("create token message : ", token)
+	tokenvalue := db.RegisterTokenCollection().CreateToken(24 * 60 * 60 * 30)
+	log.Println("create token message : ", tokenvalue)
 	count := db.RegisterTokenCollection().TokenCount()
 	log.Println("exists token : ", count)
 	db.Disconnect()
