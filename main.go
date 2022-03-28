@@ -7,7 +7,6 @@ import (
 	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
 	"github.com/aswcloud/server-comm/grpc/organization"
-	"github.com/aswcloud/server-comm/grpc/token"
 	"github.com/aswcloud/server-comm/grpc/user"
 
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -29,13 +28,11 @@ func main() {
 		log.Fatal("Database Connection Fail")
 		return
 	}
+
+	token := db.RegisterTokenCollection().CreateToken(24 * 60 * 60 * 30)
+	log.Println("create token message : ", token)
 	count := db.RegisterTokenCollection().TokenCount()
-	if count == 0 {
-		token := db.RegisterTokenCollection().CreateToken(24 * 60 * 60)
-		log.Println("create token message : ", token)
-	} else {
-		log.Println("exists token : ", count)
-	}
+	log.Println("exists token : ", count)
 	db.Disconnect()
 
 	if err != nil {
