@@ -40,7 +40,7 @@ func (self UserCollection) GetUserInfo(uuid string) (UserInfo, error) {
 	err := result.Decode(&elem)
 
 	data := UserInfo{
-		Nickname: elem["uuid"].(string),
+		Nickname: elem["nickname"].(string),
 		Email:    elem["email"].(string),
 		UserId:   elem["userId"].(string),
 		Uuid:     uuid,
