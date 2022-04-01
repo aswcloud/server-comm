@@ -11,6 +11,13 @@ import (
 	"go.mongodb.org/mongo-driver/x/mongo/driver/uuid"
 )
 
+type UserInfo struct {
+	Nickname string
+	Email    string
+	UserId   string
+	Uuid     string
+}
+
 type UserCollection struct {
 	collection *mongo.Collection
 }
@@ -23,6 +30,27 @@ func (self *Client) UserCollection() *UserCollection {
 
 	user.collection = self.database.Collection("users")
 	return &user
+}
+
+func (self UserCollection) GetUserInfo(uuid string) (UserInfo, error) {
+	result := self.collection.FindOne(context.TODO(), bson.D{
+		{"uuid", uuid},
+	})
+	var elem bson.M
+	err := result.Decode(&elem)
+
+	data := UserInfo{
+		Nickname: elem["uuid"].(string),
+		Email:    elem["email"].(string),
+		UserId:   elem["userId"].(string),
+		Uuid:     uuid,
+	}
+
+	if err != nil {
+		return UserInfo{}, err
+	} else {
+		return data, nil
+	}
 }
 
 func (self UserCollection) ExistsId(userId string) bool {

@@ -18,5 +18,4 @@ func (self *TokenServer) CreateRegisterToken(ctx context.Context, data *pb.Void)
 		Result: true,
 		Token:  &token,
 	}, nil
-
 }
