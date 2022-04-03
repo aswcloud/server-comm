@@ -6,10 +6,10 @@ import (
 
 	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
-	"github.com/aswcloud/server-comm/grpc/organization"
+	k "github.com/aswcloud/server-comm/grpc/kubernetes"
+	"github.com/aswcloud/server-comm/grpc/token"
 	"github.com/aswcloud/server-comm/grpc/user"
 
-	"github.com/aswcloud/server-comm/grpc/token"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
 	grpc_logrus "github.com/grpc-ecosystem/go-grpc-middleware/logging/logrus"
 	grpc_recovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
@@ -31,6 +31,7 @@ func main() {
 	}
 
 	tokenvalue := db.RegisterTokenCollection().CreateToken(24 * 60 * 60 * 30)
+
 	log.Println("create token message : ", tokenvalue)
 	count := db.RegisterTokenCollection().TokenCount()
 	log.Println("exists token : ", count)
@@ -48,7 +49,7 @@ func main() {
 		)),
 	)
 
-	pb.RegisterOrganizationAccountServer(s, &organization.OrganizationServer{})
+	pb.RegisterKubernetesServer(s, &k.KubernetesServer{})
 	pb.RegisterTokenServer(s, &token.TokenServer{})
 	pb.RegisterUserAccountServer(s, &user.UserServer{})
 
