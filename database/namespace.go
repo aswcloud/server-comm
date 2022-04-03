@@ -39,7 +39,7 @@ func (self Namespace) ListNamespace(uuid string) ([]string, error) {
 	}
 }
 
-func (self Namespace) CreateNamespace(uuid, namespace string) (string, error) {
+func (self Namespace) CreateNamespace(uuid, namespace string) (string, bool) {
 	data := self.collection.FindOne(context.TODO(), bson.D{
 		{"uuid", uuid},
 	})
@@ -57,7 +57,7 @@ func (self Namespace) CreateNamespace(uuid, namespace string) (string, error) {
 		log.Println(result, err)
 	} else {
 		if funk.Contains(t["namespace"], namespace) {
-			return namespace, nil
+			return namespace, true
 		}
 
 		result, err := self.collection.UpdateOne(context.TODO(), bson.D{
@@ -71,12 +71,19 @@ func (self Namespace) CreateNamespace(uuid, namespace string) (string, error) {
 		)
 		log.Println(result, err)
 	}
+	return namespace, false
+}
 
-	// var elem bson.M
-
-	if err != nil {
-		return namespace, nil
-	} else {
-		return namespace, nil
-	}
+func (self Namespace) DeleteNamespace(uuid, namespace string) (string, bool) {
+	result, err := self.collection.UpdateOne(context.TODO(), bson.D{
+		{"uuid", uuid},
+	},
+		bson.M{
+			"$pull": bson.M{
+				"namespace": namespace,
+			},
+		},
+	)
+	log.Println(result, err)
+	return namespace, true
 }
