@@ -3,11 +3,12 @@ module github.com/aswcloud/server-comm
 go 1.18
 
 require (
-	github.com/aswcloud/idl v0.15.0
+	github.com/aswcloud/idl v0.16.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/subosito/gotenv v1.2.0
+	github.com/thoas/go-funk v0.9.2
 	go.mongodb.org/mongo-driver v1.8.3
 	google.golang.org/grpc v1.45.0
 )
