@@ -10,7 +10,8 @@ import (
 )
 
 type Namespace struct {
-	collection *mongo.Collection
+	collection      *mongo.Collection
+	totalCollection *mongo.Collection
 }
 
 func (self *Client) Namespace() *Namespace {
@@ -18,9 +19,22 @@ func (self *Client) Namespace() *Namespace {
 	if self.database == nil {
 		return nil
 	}
-
+	name.totalCollection = self.database.Collection("totalNamespace")
 	name.collection = self.database.Collection("namespace")
 	return &name
+}
+
+func (self Namespace) Exists(namespace string) bool {
+	result := self.totalCollection.FindOne(context.TODO(), bson.D{
+		{"namespace", namespace},
+	})
+	var elem bson.M
+	err := result.Decode(&elem)
+	if err != nil {
+		return false
+	} else {
+		return true
+	}
 }
 
 func (self Namespace) ListNamespace(uuid string) ([]string, error) {
@@ -43,6 +57,9 @@ func (self Namespace) CreateNamespace(uuid, namespace string) (string, bool) {
 	data := self.collection.FindOne(context.TODO(), bson.D{
 		{"uuid", uuid},
 	})
+	self.totalCollection.InsertOne(context.TODO(), bson.D{
+		{"namespace", namespace},
+	})
 
 	t := bson.M{}
 	err := data.Decode(&t)
@@ -54,6 +71,7 @@ func (self Namespace) CreateNamespace(uuid, namespace string) (string, bool) {
 				namespace,
 			}},
 		})
+
 		log.Println(result, err)
 	} else {
 		if funk.Contains(t["namespace"], namespace) {
@@ -75,6 +93,10 @@ func (self Namespace) CreateNamespace(uuid, namespace string) (string, bool) {
 }
 
 func (self Namespace) DeleteNamespace(uuid, namespace string) (string, bool) {
+	self.totalCollection.DeleteMany(context.TODO(), bson.D{
+		{"namespace", namespace},
+	})
+
 	result, err := self.collection.UpdateOne(context.TODO(), bson.D{
 		{"uuid", uuid},
 	},

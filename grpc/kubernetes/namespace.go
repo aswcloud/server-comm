@@ -44,7 +44,7 @@ func (self *KubernetesServer) CreateNamespace(ctx context.Context, data *pb.Name
 	db := database.New()
 	db.Connect()
 	defer db.Disconnect()
-	_, exists := db.Namespace().CreateNamespace(requestUuid, data.Name)
+	exists := db.Namespace().Exists(data.Name)
 	if !exists {
 		k8s_server := os.Getenv("KUBERNETES_SERVER")
 		conn, _ := grpc.Dial(k8s_server, grpc.WithInsecure(), grpc.WithBlock())
@@ -53,6 +53,11 @@ func (self *KubernetesServer) CreateNamespace(ctx context.Context, data *pb.Name
 		reply, err := channel.CreateNamespace(context.TODO(), &pbk8s.Namespace{
 			Namespace: data.Name,
 		})
+
+		if err == nil && reply.Result == true {
+			db.Namespace().CreateNamespace(requestUuid, data.Name)
+		}
+
 		log.Println(reply, err)
 
 		return &pb.Result{
