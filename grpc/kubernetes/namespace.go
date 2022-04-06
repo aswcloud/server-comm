@@ -9,27 +9,19 @@ package kubernetes
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
 	pbk8s "github.com/aswcloud/idl/v1/kubernetes"
 	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
-	"github.com/golang-jwt/jwt"
+	jwtauth "github.com/aswcloud/server-comm/middleware/auth"
 	"github.com/thoas/go-funk"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 )
 
 func (self *KubernetesServer) CreateNamespace(ctx context.Context, data *pb.Namespace) (*pb.Result, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	p := md.Get("authorization")[0]
-	fmt.Println(p)
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(p, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET_TOKEN")), nil
-	})
+	user_id, err := jwtauth.Authorization(ctx)
 	if err != nil {
 		e := err.Error()
 		return &pb.Result{
@@ -37,9 +29,6 @@ func (self *KubernetesServer) CreateNamespace(ctx context.Context, data *pb.Name
 			Error:  &e,
 		}, nil
 	}
-
-	log.Println(err)
-	requestUuid := claims["user_id"].(string)
 
 	db := database.New()
 	db.Connect()
@@ -55,7 +44,7 @@ func (self *KubernetesServer) CreateNamespace(ctx context.Context, data *pb.Name
 		})
 
 		if err == nil && reply.Result == true {
-			db.Namespace().CreateNamespace(requestUuid, data.Name)
+			db.Namespace().CreateNamespace(user_id, data.Name)
 		}
 
 		log.Println(reply, err)
@@ -75,13 +64,7 @@ func (self *KubernetesServer) CreateNamespace(ctx context.Context, data *pb.Name
 }
 
 func (self *KubernetesServer) DeleteNamespace(ctx context.Context, data *pb.Namespace) (*pb.Result, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	p := md.Get("authorization")[0]
-	fmt.Println(p)
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(p, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET_TOKEN")), nil
-	})
+	user_id, err := jwtauth.Authorization(ctx)
 	if err != nil {
 		e := err.Error()
 		return &pb.Result{
@@ -90,13 +73,10 @@ func (self *KubernetesServer) DeleteNamespace(ctx context.Context, data *pb.Name
 		}, nil
 	}
 
-	log.Println(err)
-	requestUuid := claims["user_id"].(string)
-
 	db := database.New()
 	db.Connect()
 	defer db.Disconnect()
-	_, exists := db.Namespace().DeleteNamespace(requestUuid, data.Name)
+	_, exists := db.Namespace().DeleteNamespace(user_id, data.Name)
 	if exists {
 		k8s_server := os.Getenv("KUBERNETES_SERVER")
 		conn, _ := grpc.Dial(k8s_server, grpc.WithInsecure(), grpc.WithBlock())
@@ -121,24 +101,15 @@ func (self *KubernetesServer) DeleteNamespace(ctx context.Context, data *pb.Name
 	}
 }
 func (self *KubernetesServer) ReadNamespace(ctx context.Context, data *pb.Void) (*pb.ListNamespace, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	p := md.Get("authorization")[0]
-	fmt.Println(p)
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(p, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET_TOKEN")), nil
-	})
+	user_id, err := jwtauth.Authorization(ctx)
 	if err != nil {
-		return &pb.ListNamespace{}, err
+		return &pb.ListNamespace{}, nil
 	}
-
-	log.Println(err)
-	requestUuid := claims["user_id"].(string)
 
 	db := database.New()
 	db.Connect()
 	defer db.Disconnect()
-	list, err := db.Namespace().ListNamespace(requestUuid)
+	list, err := db.Namespace().ListNamespace(user_id)
 	if err != nil {
 		return &pb.ListNamespace{}, err
 	}

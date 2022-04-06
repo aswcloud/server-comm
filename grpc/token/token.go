@@ -8,6 +8,7 @@ import (
 
 	pb "github.com/aswcloud/idl/v1/servercomm"
 	"github.com/aswcloud/server-comm/database"
+	jwtauth "github.com/aswcloud/server-comm/middleware/auth"
 	"github.com/golang-jwt/jwt"
 	"google.golang.org/grpc/metadata"
 )
@@ -127,26 +128,27 @@ func (self *TokenServer) DeleteRefreshToken(ctx context.Context, data *pb.Uuid) 
 }
 
 func (self *TokenServer) CreateAccessToken(ctx context.Context, data *pb.Uuid) (*pb.TokenMessage, error) {
-	md, _ := metadata.FromIncomingContext(ctx)
-	p := md.Get("authorization")[0]
-	fmt.Println(p)
-	claims := jwt.MapClaims{}
-	_, err := jwt.ParseWithClaims(p, &claims, func(t *jwt.Token) (interface{}, error) {
-		return []byte(os.Getenv("JWT_SECRET_TOKEN")), nil
-	})
-	db := database.New()
-	db.Connect()
-	defer db.Disconnect()
+	user_id, err := jwtauth.Authorization(ctx)
 	if err != nil {
 		return &pb.TokenMessage{
 			Result: false,
 			Token:  nil,
 		}, nil
 	}
-	requestUuid := claims["user_id"].(string)
-	info, err := db.UserCollection().GetUserInfo(requestUuid)
+	if err != nil {
+		return &pb.TokenMessage{
+			Result: false,
+			Token:  nil,
+		}, nil
+	}
 
-	if err != nil || requestUuid != data.Uuid {
+	db := database.New()
+	db.Connect()
+	defer db.Disconnect()
+
+	info, err := db.UserCollection().GetUserInfo(user_id)
+
+	if err != nil || user_id != data.Uuid {
 		return &pb.TokenMessage{
 			Result: false,
 			Token:  nil,
